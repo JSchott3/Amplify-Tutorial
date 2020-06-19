@@ -34,3 +34,48 @@ export const onDeleteTodo = /* GraphQL */ `
     }
   }
 `;
+export const onCreateProfile = /* GraphQL */ `
+  subscription OnCreateProfile {
+    onCreateProfile {
+      username
+      id
+      phoneNumber
+      email
+      homeAddress
+      zipcode
+      picture
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateProfile = /* GraphQL */ `
+  subscription OnUpdateProfile {
+    onUpdateProfile {
+      username
+      id
+      phoneNumber
+      email
+      homeAddress
+      zipcode
+      picture
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteProfile = /* GraphQL */ `
+  subscription OnDeleteProfile {
+    onDeleteProfile {
+      username
+      id
+      phoneNumber
+      email
+      homeAddress
+      zipcode
+      picture
+      createdAt
+      updatedAt
+    }
+  }
+`;

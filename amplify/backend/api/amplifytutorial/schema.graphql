@@ -3,3 +3,13 @@ type Todo @model {
   name: String!
   description: String 
 }
+
+type Profile @model {
+  username: String!
+  id: ID!
+  phoneNumber: String
+  email: String
+  homeAddress: String
+  zipcode: String
+  picture: String
+}
