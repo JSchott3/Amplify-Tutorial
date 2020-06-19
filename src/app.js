@@ -1,15 +1,18 @@
 /* src/App.js */
 import React, { useEffect, useState } from 'react'
 import { API, graphqlOperation } from 'aws-amplify'
-import { createTodo } from './graphql/mutations'
-import { listTodos } from './graphql/queries'
-import { withAuthenticator } from '@aws-amplify/ui-react'
+import { createTodo, createProfile } from './graphql/mutations'
+import { listTodos, getProfile } from './graphql/queries'
+import { Auth } from 'aws-amplify';
 
 const initialState = { name: '', description: '' }
 
 const App = () => {
+
   const [formState, setFormState] = useState(initialState)
   const [todos, setTodos] = useState([])
+  const [loginState, setLoginState] = useState(false)
+  const [getProfileState, setProfileState] = useState({})
 
   useEffect(() => {
     fetchTodos()
@@ -19,12 +22,49 @@ const App = () => {
     setFormState({ ...formState, [key]: value })
   }
 
+  async function signIn() {
+    try {
+        const user = await Auth.signIn("Testman", "password");
+        setLoginState(true)
+    } catch (error) {
+        console.log('error signing in', error);
+    }
+  }
+
+  async function signOut() {
+    try {
+        await Auth.signOut();
+        setLoginState(false)
+    } catch (error) {
+        console.log('error signing out: ', error);
+    }
+}
+
+async function getProfileData() {
+  const id = "c7d65630-da1c-4a63-a349-5d94c570d975"
+  try {
+    const profileData = await API.graphql(graphqlOperation(getProfile, {id: id}))
+    const profile = profileData.data.getProfile
+    setProfileState(profile)
+  } catch (err) { console.log('error fetching profile') }
+}
+
   async function fetchTodos() {
     try {
       const todoData = await API.graphql(graphqlOperation(listTodos))
       const todos = todoData.data.listTodos.items
       setTodos(todos)
     } catch (err) { console.log('error fetching todos') }
+  }
+
+  async function addProfile() {
+    const profile = { username: "James"}
+    try {
+      await API.graphql(graphqlOperation(createProfile, {input: profile}))
+    }
+    catch (err) {
+      console.log('error creating profile:', err)
+    }
   }
 
   async function addTodo() {
@@ -40,8 +80,9 @@ const App = () => {
   }
 
   return (
+
     <div style={styles.container}>
-      <h2>Amplify Todos</h2>
+      {/* <h2>Amplify Todos</h2>
       <input
         onChange={event => setInput('name', event.target.value)}
         style={styles.input}
@@ -53,8 +94,15 @@ const App = () => {
         style={styles.input}
         value={formState.description}
         placeholder="Description"
-      />
-      <button style={styles.button} onClick={addTodo}>Create Todo</button>
+      /> */}
+
+      {
+        loginState ? <button onClick = {signOut}> Logout </button> : <button onClick = {signIn}> Sign In </button> 
+      }
+
+      <button onClick = {getProfileData}> Get Profile </button>
+
+      {/* <button style={styles.button} onClick={addTodo}>Create Todo</button>
       {
         todos.map((todo, index) => (
           <div key={todo.id ? todo.id : index} style={styles.todo}>
@@ -62,7 +110,7 @@ const App = () => {
             <p style={styles.todoDescription}>{todo.description}</p>
           </div>
         ))
-      }
+      } */}
     </div>
   )
 }
@@ -76,4 +124,4 @@ const styles = {
   button: { backgroundColor: 'black', color: 'white', outline: 'none', fontSize: 18, padding: '12px 0px' }
 }
 
-export default withAuthenticator(App)
+export default App
